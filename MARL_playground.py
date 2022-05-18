@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from gym.utils import seeding
 import random
-
+from gym.envs.classic_control import rendering
 import tushare as ts
 
 matplotlib.use("Agg")  # 控制绘图不显示，必须在import matplotlib.pyplot as plt前运行
@@ -54,6 +54,8 @@ class StockTradingEnv(gym.Env):
             # 写入数据
             self.df.to_csv(filename, mode="w")
 
+        self.viewer = rendering.Viewer(1200, 800)
+
         self.totalDayNum = len(self.df)
         self.nowDayNum = 0
         self.open_price = int(self.df.iloc[self.nowDayNum]['open']*100)
@@ -74,6 +76,8 @@ class StockTradingEnv(gym.Env):
         self.buy_cost_pct = buy_cost_pct
         self.sell_cost_pct = sell_cost_pct
 
+        self.plot_data = pd.read_csv('./Dataset/002194.SZ_stock.csv')
+        self.i=0
         self.terminal = True
 
     def step(self, action):
@@ -282,7 +286,23 @@ class StockTradingEnv(gym.Env):
                          int(self.news)])
 
     def render(self, mode="human", close=False):
-        return self.state
+
+
+        i=self.i
+        line1 = rendering.Line((50*i+10, int(self.min_price)), (50*i+10, int(self.max_price)))
+        apolyline1 = rendering.make_polygon([(50*i, int(self.open_price)), (50*i+20, int(self.open_price)), (50*i+20, int(self.close_price)), (50*i, int(self.close_price))])
+        # 给元素添加颜色
+        if self.close_price>=self.open_price:
+            line1.set_color(255, 0, 0)
+            apolyline1.set_color(255,0,0)
+        else:
+            line1.set_color(0, 255, 0)
+            apolyline1.set_color(0, 255, 0)
+        # 把图形元素添加到画板中
+        self.viewer.add_geom(line1)
+        self.viewer.add_geom(apolyline1)
+        self.i+=1
+        return self.viewer.render(return_rgb_array=mode == 'rgb_array')
 
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)

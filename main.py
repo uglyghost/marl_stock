@@ -1,3 +1,5 @@
+import time
+
 from Agent import agent
 from MARL_playground import StockTradingEnv
 import numpy as np
@@ -10,6 +12,8 @@ if __name__=='__main__':
     """
     数据准备阶段
     """
+
+
     args = get_args()
 
     # data load
@@ -45,12 +49,14 @@ if __name__=='__main__':
     # make env with settings
     env = StockTradingEnv(start_date=args.start_date, ts_code=args.ts_code, end_date=args.end_date)
 
+
     """
     迭代执行阶段
     """
     # 交易周期（全）
     while env.nowDayNum != env.totalDayNum:
         # 交易周期（一天）
+
         while env.terminal:
             # 记录所有用户的action列表
             action_list = []
@@ -59,8 +65,12 @@ if __name__=='__main__':
             # 所有agent轮流执行动作
             for index in range(agent_count):
                 # 智能体根据当前状态选择动作
+                print('index:{}'.format(index))
+                print('选择动作..')
                 action_one = agent_list[index].policy_model.select_action(curr_state)
+
                 action = action_one
+                print('选择动作为{}..'.format(action))
                 # 记录执行动作之前的状态
                 agent_list[index].save_state()
                 # 价格调整 将原来 0-100 调整成 价格区间上100个数值
@@ -119,6 +129,10 @@ if __name__=='__main__':
                     agent_list[index].train_one_trade(curr_state, next_state, env.now_price, action_list[index])
 
             # price_varation.append(env.now_price)
+        print('render:')
+        env.render()
+        print('render_over')
+        print(env.max_price, env.min_price, env.close_price, env.open_price)
 
         # 切换到新的一天
         list_of_sell, list_of_buy = env.make_newday()

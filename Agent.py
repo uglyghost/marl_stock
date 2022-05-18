@@ -6,6 +6,7 @@ import numpy as np
 
 from nn_model.SAC import SAC
 from nn_model.RVI import RVI
+from nn_model.DDPG import DDPG
 
 
 class agent:
@@ -47,6 +48,8 @@ class agent:
             self.policy_model = RVI(**kwargs)
         elif self.config.policy == 'SAC':
             self.policy_model = SAC(**kwargs)
+        elif self.config.policy == 'DDPG':
+            self.policy_model = DDPG(**kwargs)
 
     def train_one_trade(self, curr_state, next_state, now_price, action):
 

@@ -19,7 +19,7 @@ parser.add_argument('--end_date', default='20181201', type=str, help='start day 
 parser.add_argument('--ts_code', default='002194.SZ', type=str, help='stock number')
 
 # reinforcement learning settings
-parser.add_argument('--policy', default='RVI', type=str, help='select method')
+parser.add_argument('--policy', default='DDPG', type=str, help='select method')
 parser.add_argument('--state_dim', default=6, type=int, help='State dimension')
 parser.add_argument('--action_dim', default=2, type=int, help='Action dimension')
 parser.add_argument('--max_action', default=100, type=int, help='Max value of action number')

@@ -231,7 +231,7 @@ class SAC:
                 price = random.randint(0, 100)
                 number = random.randint(1, 100)
             else:
-                price = 1
+                price = 0
                 number = 0
             return [type * number, price]
         else:
