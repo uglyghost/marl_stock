@@ -54,7 +54,7 @@ class StockTradingEnv(gym.Env):
             # 写入数据
             self.df.to_csv(filename, mode="w")
 
-        self.viewer = rendering.Viewer(1200, 800)
+        self.viewer = rendering.Viewer(1800, 1200)
 
         self.totalDayNum = len(self.df)
         self.nowDayNum = 0
@@ -77,8 +77,12 @@ class StockTradingEnv(gym.Env):
         self.sell_cost_pct = sell_cost_pct
 
         self.plot_data = pd.read_csv('./Dataset/002194.SZ_stock.csv')
-        self.i=0
+
         self.terminal = True
+
+        self.i = 0
+        self.list_line=[]
+        self.list_rt = []
 
     def step(self, action):
 
@@ -255,8 +259,9 @@ class StockTradingEnv(gym.Env):
         # 重置到下一天
         self.nowDayNum += 1
         self.pre_close = self.now_price
-        self.open_price = int(self.df.iloc[self.nowDayNum]['open'] * 100)
-        self.now_price = int(self.df.iloc[self.nowDayNum]['open'] * 100)
+        # self.open_price = int(self.df.iloc[self.nowDayNum]['open'] * 100)
+        # self.now_price = int(self.df.iloc[self.nowDayNum]['open'] * 100)
+        self.open_price = self.now_price
         self.total_vol = self.df.iloc[self.nowDayNum]['vol']
         self.terminal = True
         self.min_price = 10000
@@ -292,6 +297,7 @@ class StockTradingEnv(gym.Env):
         line1 = rendering.Line((50*i+10, int(self.min_price)), (50*i+10, int(self.max_price)))
         apolyline1 = rendering.make_polygon([(50*i, int(self.open_price)), (50*i+20, int(self.open_price)), (50*i+20, int(self.close_price)), (50*i, int(self.close_price))])
         # 给元素添加颜色
+
         if self.close_price>=self.open_price:
             line1.set_color(255, 0, 0)
             apolyline1.set_color(255,0,0)
@@ -299,9 +305,29 @@ class StockTradingEnv(gym.Env):
             line1.set_color(0, 255, 0)
             apolyline1.set_color(0, 255, 0)
         # 把图形元素添加到画板中
-        self.viewer.add_geom(line1)
-        self.viewer.add_geom(apolyline1)
-        self.i+=1
+
+        if i<20:
+            self.list_line.append(line1)
+            self.list_rt.append(apolyline1)
+            self.viewer.add_geom(self.list_line[i])
+            self.viewer.add_geom(self.list_rt[i])
+            self.i+=1
+
+        else:
+            for j in range(len(self.list_line)):
+                line_transform = rendering.Transform(translation=(-50, 0))
+                # 让圆添加平移这个属性
+                self.list_line[j].add_attr(line_transform)
+                self.list_rt[j].add_attr(line_transform)
+            self.list_line.append(line1)
+            self.list_rt.append(apolyline1)
+            self.list_line = self.list_line[1:]
+            self.list_rt=self.list_rt[1:]
+            self.viewer.add_geom(self.list_line[i-1])
+            self.viewer.add_geom(self.list_rt[i-1])
+
+
+
         return self.viewer.render(return_rgb_array=mode == 'rgb_array')
 
     def _seed(self, seed=None):
