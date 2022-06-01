@@ -7,7 +7,7 @@ import numpy as np
 from nn_model.SAC import SAC
 from nn_model.RVI import RVI
 from nn_model.DDPG import DDPG
-
+from nn_model.DQN import DQN
 
 class agent:
     def __init__(self, config, userID, cash, shares):
@@ -43,6 +43,7 @@ class agent:
             "beta": self.config.lrRL
         }
 
+
         # 强化学习模型选择
         if self.config.policy == 'RVI':
             self.policy_model = RVI(**kwargs)
@@ -50,6 +51,8 @@ class agent:
             self.policy_model = SAC(**kwargs)
         elif self.config.policy == 'DDPG':
             self.policy_model = DDPG(**kwargs)
+        elif self.config.policy == 'DQN':
+            self.policy_model = DQN(**kwargs)
 
     def train_one_trade(self, curr_state, next_state, now_price, action):
 

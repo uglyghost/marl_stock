@@ -294,8 +294,8 @@ class StockTradingEnv(gym.Env):
 
 
         i=self.i
-        line1 = rendering.Line((50*i+10, int(self.min_price)), (50*i+10, int(self.max_price)))
-        apolyline1 = rendering.make_polygon([(50*i, int(self.open_price)), (50*i+20, int(self.open_price)), (50*i+20, int(self.close_price)), (50*i, int(self.close_price))])
+        line1 = rendering.Line((30*i+10, int(self.min_price)), (30*i+10, int(self.max_price)))
+        apolyline1 = rendering.make_polygon([(30*i, int(self.open_price)), (30*i+20, int(self.open_price)), (30*i+20, int(self.close_price)), (30*i, int(self.close_price))])
         # 给元素添加颜色
 
         if self.close_price>=self.open_price:
