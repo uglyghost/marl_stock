@@ -109,21 +109,25 @@ class DDPG:
         self.gamma = discount
 
         self.exploration = 0
-        self.exploration_total = 10e10
-        self.action_space = spaces.MultiDiscrete([max_action, max_action])
+        self.exploration_total = 1000
+        self.action_space = spaces.MultiDiscrete([max_action * max_action + 1])
 
     def select_action(self, state):
-        action = self.action_space.sample()
-        # 1 买入  0 持有  -1 卖出
-        type = random.randint(-1, 1)
-        if type != 0:
-            action[0] = action[0] * type
-            action[1] = action[1]
+        self.exploration += 1
+        if self.exploration < self.exploration_total:
+            type = random.randint(-1, 1)
+            if type != 0:
+                price = random.randint(1, 100)
+                number = random.randint(0, 100)
+            else:
+                price = 0
+                number = 0
+            return [type * number, price]
         else:
-            action[1] = 0
-            action[0] = 0
-        return action
-        return action.detach().cpu().numpy()[0, 0]
+            state = T.Tensor(np.array([observation])).to(device)
+            actions, _ = self.actor.sample_normal(state, reparameterize=False)
+
+            return actions.cpu().detach().numpy().reshape([2]).tolist()  #
 
     def train(self):
         if len(self.memory) < self.batch_size:  # 当 memory 中不满足一个批量时，不更新策略
