@@ -6,7 +6,7 @@ import numpy as np
 from arguments import get_args
 import tushare as ts
 import pandas as pd
-
+import math
 
 if __name__=='__main__':
     """
@@ -63,13 +63,32 @@ if __name__=='__main__':
             # 获得当前的状态
             curr_state = env.get_state()
             # 所有agent轮流执行动作
+
             for index in range(agent_count):
+                action = [0, 0]
                 # 智能体根据当前状态选择动作
                 print('index:{}'.format(index))
                 print('选择动作..')
                 action_one = agent_list[index].policy_model.select_action(curr_state)
+                if action_one ==0:
+                    action[0]=0
+                    action[1]=0
+                elif action_one<=100:
+                    action[0]=math.ceil(action_one/10)  #向上取整
+                    if action_one%10==0:
+                        action[1]=10
+                    else:
+                        action[1] = action_one%10
+                else:  #10001-20000 区间为卖
+                    action_one -= 100
+                    action[0] = -math.ceil(action_one / 10)  #卖为负
+                    if action_one % 10 == 0:
+                        action[1] = 10
+                    else:
+                        action[1] = action_one % 10
 
-                action = action_one
+
+
                 print('选择动作为{}..'.format(action))
                 # 记录执行动作之前的状态
                 agent_list[index].save_state()
@@ -89,16 +108,16 @@ if __name__=='__main__':
                     # 将卖单挂单信息记录在 agent类 中
                     agent_list[index].add_on_share_sell(abs(action[0]))
 
-                if action[0] == 0:
-                    action_one[0] = 0
-                    action_one[1] = 0
+                # if action[0] == 0:
+                #     action_one[0] = 0
+                #     action_one[1] = 0
 
                 # 记录动作
                 action_list.append(action_one)
 
                 # 智能体选择交易，持有不动时 action[0]=0
                 if action[0] != 0:
-                    action_use = action.tolist()
+                    action_use = action  #浅拷贝
                     # 增加用户ID信息
                     action_use.append(index)
                     # 执行一个 agent 一次交易后的环境更新
@@ -112,7 +131,7 @@ if __name__=='__main__':
                     else:
                         agent_list[action_use[2]].fail_action(trade_money=action_use[1],
                                                               trade_num=action_use[0])
-                        action_list[index] = np.array([0, 0])
+                        action_list[index] = 0
 
             # 模拟部分用户撤单行为
             return_list = env.return_share()
@@ -123,6 +142,7 @@ if __name__=='__main__':
 
             # 获得一轮交易后的状态变化
             next_state = env.get_state()
+            print('nnnn',next_state)
             if env.max_price != 1:
                 for index in range(agent_count):
                     # 进行训练

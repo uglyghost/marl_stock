@@ -73,11 +73,11 @@ class agent:
                                            next_state,
                                            reward, False)
 
-        if self.policy_model.exploration > self.policy_model.batch_size:
+        if self.policy_model.frame_idx > self.policy_model.batch_size:
             self.policy_model.train()
 
-        if self.policy_model.exploration % self.print_iteration == 0 and self.print_iteration != 0:
-            print(f"Episode T: {self.policy_model.exploration}"
+        if self.policy_model.frame_idx % self.print_iteration == 0 and self.print_iteration != 0:
+            print(f"Episode T: {self.policy_model.frame_idx}"
                   f"  Slot Reward: {reward:.1f} ")
 
     def save_state(self):

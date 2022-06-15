@@ -19,13 +19,13 @@ parser.add_argument('--end_date', default='20181201', type=str, help='start day 
 parser.add_argument('--ts_code', default='002194.SZ', type=str, help='stock number')
 
 # reinforcement learning settings
-parser.add_argument('--policy', default='DDPG', type=str, help='select method')
+parser.add_argument('--policy', default='DQN', type=str, help='select method')
 parser.add_argument('--state_dim', default=6, type=int, help='State dimension')
-parser.add_argument('--action_dim', default=2, type=int, help='Action dimension')
-parser.add_argument('--max_action', default=100, type=int, help='Max value of action number')
+parser.add_argument('--action_dim', default=201, type=int, help='Action dimension') #买：1-100，价格1-100.卖：1-100，价格1-100 + 买0，价格0
+parser.add_argument('--max_action', default=10, type=int, help='Max value of action number')
 parser.add_argument('--lrRL', default=10e-5, type=float, help='learning rate for RL model')
 parser.add_argument('--discount', default=1.0, type=float, help='Discount factor')
-parser.add_argument('--batch_size', default=10e10, type=int, help='')
+parser.add_argument('--batch_size', default=64, type=int, help='')
 
 args = parser.parse_args()
 

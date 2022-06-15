@@ -99,27 +99,31 @@ class DQN:
 
     def select_action(self,state): #ε-贪心和玻尔兹曼探索（Boltzmann exploration）
         self.frame_idx += 1
-        if random.random()>self.epsilon(self.frame_idx):
+        if random.random()>self.epsilon(self.frame_idx): #选择动作
             with torch.no_grad():
-                state = torch.tensor([state],device=self.device,dtype=torch.float32)
+                state = torch.tensor([state], device=self.device,dtype=torch.float32)
                 q_values = self.police_net(state)
 
-                action = q_values.max(1)[1].item()-2
+                action = q_values.max(1)[1].item()
 
         else:
-            action = random.randrange(self.action_dim)-2
+            action = random.randrange(self.action_dim)
+        print('aaaa',action)
         return action
 
     def train(self):
         if len(self.memory)<self.batch_size:
 
             return
-        state_batch, action_batch, reward_batch, state_next_batch,done_batch = self.memory.sample(self.batch_size)
+        state_batch, action_batch, state_next_batch,reward_batch, done_batch = self.memory.sample(self.batch_size)
         state_batch = torch.tensor(state_batch,device=self.device,dtype=torch.float32)
+
         action_batch = torch.tensor(action_batch,device=self.device).unsqueeze(1)
         reward_batch = torch.tensor(reward_batch ,device=self.device,dtype=torch.float32)
         state_next_batch = torch.tensor(state_next_batch,device=self.device,dtype=torch.float32)
         done_batch = torch.tensor(done_batch,device=self.device,dtype=torch.float32)
+
+
 #DQN-----------
         if self.alg=="DQN":
             q_values = self.police_net(state_batch).gather(dim=1,index=action_batch)
@@ -128,9 +132,14 @@ class DQN:
 # DQN-----------
 #DDQN------
         elif self.alg == "DDQN" or "DuelDQN":
+
             q_values = self.police_net(state_batch).gather(dim=1, index=action_batch)
+
             next_q_action = self.police_net(state_batch).max(1)[1].detach()
+
+
             next_q_target = self.tartget_net(state_next_batch).gather(1,next_q_action.unsqueeze(1)).squeeze(1)
+
             expect_q_values = reward_batch + self.gamma * next_q_target * (1 - done_batch)
 
 
@@ -142,7 +151,8 @@ class DQN:
         for param in self.police_net.parameters():
             param.grad.data.clamp_(-1,1)
         self.optimizer.step()
-
+    def store_transition(self,curr_state,action,next_state,reward,done):
+        self.memory.push(curr_state, action, next_state, reward, done)
     def save(self,path):
         torch.save(self.tartget_net.state_dict(),path+'dqn.pth')
 
