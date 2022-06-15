@@ -22,6 +22,7 @@ if __name__=='__main__':
     if args.file_read:
         # load from file
         df = pd.read_csv(filename)
+
     else:
         # load from tushare
         df = pro.bak_daily(trade_date=args.start_date,
